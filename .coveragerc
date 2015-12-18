@@ -1,0 +1,5 @@
+[run]
+include = rcj-leaderboards/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin
