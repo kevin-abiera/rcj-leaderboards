@@ -46,7 +46,8 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'rcj-leaderboards.core',
     'rcj-leaderboards.users',  # custom users app
-    # Your stuff: custom apps go here
+    'rcj-leaderboards.leagues',
+    'rcj-leaderboards.teams',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
