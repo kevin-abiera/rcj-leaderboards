@@ -11,14 +11,14 @@ class FleaOwner(UUIDModel):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.name or '--Unowned--'
 
 
 class FleaTeam(UUIDModel):
     name = models.CharField(max_length=128)
     url = models.URLField(unique=True)
     owner = models.ForeignKey('FleaOwner', null=True)
-    league = models.ForeignKey('leagues.FleaLeague')
+    league = models.ForeignKey('leagues.FleaLeague', related_name='teams')
     stat_fgpct100 = models.PositiveIntegerField(default=0)
     stat_ftpct100 = models.PositiveIntegerField(default=0)
     stat_3pt = models.PositiveIntegerField(default=0)
