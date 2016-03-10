@@ -55,7 +55,7 @@ To run a celery worker:
 .. code-block:: bash
 
     cd rcj-leaderboards
-    celery -A rcj-leaderboards.taskapp worker -l info
+    celery -A leaderboards.taskapp worker -l info
 
 Please note: For Celerys import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
 

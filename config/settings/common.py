@@ -13,7 +13,7 @@ from __future__ import absolute_import, unicode_literals
 import environ
 
 ROOT_DIR = environ.Path(__file__) - 3  # (/a/b/myfile.py - 3 = /)
-APPS_DIR = ROOT_DIR.path('rcj-leaderboards')
+APPS_DIR = ROOT_DIR.path('leaderboards')
 
 environ.Env.read_env(str(ROOT_DIR.path('.environ')))
 env = environ.Env()
@@ -40,14 +40,16 @@ THIRD_PARTY_APPS = (
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'django_graphiql',
+    'graphene.contrib.django',
 )
 
 # Apps specific for this project go here.
 LOCAL_APPS = (
-    'rcj-leaderboards.core',
-    'rcj-leaderboards.users',  # custom users app
-    'rcj-leaderboards.leagues',
-    'rcj-leaderboards.teams',
+    'leaderboards.core',
+    'leaderboards.users',  # custom users app
+    'leaderboards.leagues',
+    'leaderboards.teams',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -68,7 +70,7 @@ MIDDLEWARE_CLASSES = (
 # MIGRATIONS CONFIGURATION
 # ------------------------------------------------------------------------------
 MIGRATION_MODULES = {
-    'sites': 'rcj-leaderboards.contrib.sites.migrations'
+    'sites': 'leaderboards.contrib.sites.migrations'
 }
 
 # DEBUG
@@ -225,7 +227,7 @@ LOGIN_URL = 'account_login'
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 
 # CELERY
-INSTALLED_APPS += ('rcj-leaderboards.taskapp.celery.CeleryConfig',)
+INSTALLED_APPS += ('leaderboards.taskapp.celery.CeleryConfig',)
 # if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
 INSTALLED_APPS += ('kombu.transport.django',)
 BROKER_URL = env("CELERY_BROKER_URL", default='django://')

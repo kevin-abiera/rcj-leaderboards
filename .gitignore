@@ -58,7 +58,7 @@ node_modules/
 .venv
 
 # User-uploaded media
-rcj-leaderboards/media/
+leaderboards/media/
 
 # Environment Variables (for environ)
 .environ

@@ -41,7 +41,7 @@ class FleaLeague(UUIDModel):
             if team.xpath('td/a/text()') == ['Take Over']:
                 # Team is not owned
                 team_owner_name = ''
-                team_owner_url = team.xpath('td/a/@href')
+                team_owner_url = team.xpath('td/a/@href')[0]
                 team_owner_active = False
             else:
                 team_owner_name = team.xpath('td/span/a[contains(@class, "user-name")]/text()')[0]
@@ -62,16 +62,15 @@ class FleaLeague(UUIDModel):
                 'stat_fgpct100', 'stat_ftpct100', 'stat_3pt', 'stat_reb',
                 'stat_stl', 'stat_blk', 'stat_ast', 'stat_to', 'stat_pts',
             ]
-
             stat_from_ff = team.xpath('td[contains(@class, "right")]/span/text()')
 
             # Transform (Remove commas and decimals (only for percentages))
-            for idx, val in enumerate(stat_from_ff):
-                val = val.replace(',', '')
-                if stat_vars[idx] in ['stat_fgpct100', 'stat_ftpct100']:
-                    stat_from_ff[idx] = int(float(val) * 100)
+            for idx, val in enumerate(stat_vars):
+                stat = stat_from_ff[idx].replace(',', '')
+                if val in ['stat_fgpct100', 'stat_ftpct100']:
+                    stat_from_ff[idx] = int(float(stat) * 100)
                 else:
-                    stat_from_ff[idx] = int(val)
+                    stat_from_ff[idx] = int(stat)
 
             stats = dict(zip(
                 stat_vars,

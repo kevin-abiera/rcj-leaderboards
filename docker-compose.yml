@@ -30,7 +30,7 @@ celeryworker:
   links:
    - postgres
    - redis
-  command: celery -A rcj-leaderboards.taskapp worker -l INFO
+  command: celery -A leaderboards.taskapp worker -l INFO
 
 celerybeat:
   build: .
@@ -39,4 +39,4 @@ celerybeat:
   links:
     - postgres
     - redis
-  command: celery -A rcj-leaderboards.taskapp beat -l INFO
+  command: celery -A leaderboards.taskapp beat -l INFO

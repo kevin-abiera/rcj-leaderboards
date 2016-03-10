@@ -7,6 +7,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from django.views.decorators.csrf import csrf_exempt
+
+from graphene.contrib.django.views import GraphQLView
+
+from leaderboards.core.schema import schema
+
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name="home"),
@@ -16,8 +22,12 @@ urlpatterns = [
     url(settings.ADMIN_URL, include(admin.site.urls)),
 
     # User management
-    url(r'^users/', include("rcj-leaderboards.users.urls", namespace="users")),
+    url(r'^users/', include("leaderboards.users.urls", namespace="users")),
     url(r'^accounts/', include('allauth.urls')),
+
+    # GraphQL
+    url(r'^graphql', csrf_exempt(GraphQLView.as_view(schema=schema))),
+    url(r'^graphiql', include('django_graphiql.urls')),
 
     # Your stuff: custom urls includes go here
 
