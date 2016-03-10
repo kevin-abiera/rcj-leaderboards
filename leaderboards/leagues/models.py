@@ -2,9 +2,16 @@ from django.db import models
 
 from lxml import html
 import requests
+import ranking
 
 from ..core.models import UUIDModel
 from ..teams.models import FleaOwner
+
+
+STAT_VARS = [  # Should be ordered accordingly
+    'stat_fgpct100', 'stat_ftpct100', 'stat_3pt', 'stat_reb',
+    'stat_stl', 'stat_blk', 'stat_ast', 'stat_to', 'stat_pts',
+]
 
 
 class RedditLeague(UUIDModel):
@@ -58,14 +65,10 @@ class FleaLeague(UUIDModel):
                 },
             )
 
-            stat_vars = [  # Should be ordered accordingly
-                'stat_fgpct100', 'stat_ftpct100', 'stat_3pt', 'stat_reb',
-                'stat_stl', 'stat_blk', 'stat_ast', 'stat_to', 'stat_pts',
-            ]
             stat_from_ff = team.xpath('td[contains(@class, "right")]/span/text()')
 
             # Transform (Remove commas and decimals (only for percentages))
-            for idx, val in enumerate(stat_vars):
+            for idx, val in enumerate(STAT_VARS):
                 stat = stat_from_ff[idx].replace(',', '')
                 if val in ['stat_fgpct100', 'stat_ftpct100']:
                     stat_from_ff[idx] = int(float(stat) * 100)
@@ -73,7 +76,7 @@ class FleaLeague(UUIDModel):
                     stat_from_ff[idx] = int(stat)
 
             stats = dict(zip(
-                stat_vars,
+                STAT_VARS,
                 stat_from_ff,
             ))
 
@@ -87,3 +90,19 @@ class FleaLeague(UUIDModel):
             )
 
         self.save()
+
+    def get_league_rankings(self, stat):
+        assert stat in STAT_VARS, 'Invalid stat, check STAT_VARS'
+        # TODO: if stat == 'overall'
+        if stat == 'stat_to':
+            sorted_ids = self.teams.values_list('id', flat=True).order_by('-' + stat)
+            sorted_stats = self.teams.values_list(stat, flat=True).order_by('-' + stat)
+            rankings = list(ranking.Ranking(sorted_stats, start=1))
+        else:
+            sorted_ids = self.teams.values_list('id', flat=True).order_by(stat)
+            sorted_stats = self.teams.values_list(stat, flat=True).order_by(stat)
+            rankings = list(ranking.Ranking(sorted_stats, start=1, reverse=True))
+
+        flat_rankings = [rank for (rank, _) in rankings]
+
+        return dict(zip(sorted_ids, flat_rankings))

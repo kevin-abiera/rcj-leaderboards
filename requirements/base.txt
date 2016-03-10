@@ -47,3 +47,4 @@ lxml==3.5.0
 graphene==0.7.3
 django-graphiql==0.4.4
 graphql-django-view==1.1.0
+ranking==0.3.1
