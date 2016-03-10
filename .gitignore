@@ -83,3 +83,6 @@ rcj-leaderboards/media/
 
 # Output files (docker)
 out/
+
+# GraphQL Schema
+schema.json
