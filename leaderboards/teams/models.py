@@ -32,3 +32,13 @@ class FleaTeam(UUIDModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def stat_overall_pts(self):
+        points = self.league.get_overall_points()
+        return points[self.id]
+
+    @property
+    def stat_overall_rank(self):
+        rankings = self.league.get_overall_rankings()
+        return rankings[self.id]

@@ -1,5 +1,6 @@
 from django.db import models
 
+from collections import Counter
 from lxml import html
 import requests
 import ranking
@@ -93,7 +94,6 @@ class FleaLeague(UUIDModel):
 
     def get_league_rankings(self, stat):
         assert stat in STAT_VARS, 'Invalid stat, check STAT_VARS'
-        # TODO: if stat == 'overall'
         if stat == 'stat_to':
             sorted_ids = self.teams.values_list('id', flat=True).order_by('-' + stat)
             sorted_stats = self.teams.values_list(stat, flat=True).order_by('-' + stat)
@@ -102,6 +102,24 @@ class FleaLeague(UUIDModel):
             sorted_ids = self.teams.values_list('id', flat=True).order_by(stat)
             sorted_stats = self.teams.values_list(stat, flat=True).order_by(stat)
             rankings = list(ranking.Ranking(sorted_stats, start=1, reverse=True))
+
+        flat_rankings = [rank for (rank, _) in rankings]
+
+        return dict(zip(sorted_ids, flat_rankings))
+
+    def get_overall_points(self):
+        counter = Counter()
+        for stat in STAT_VARS:
+            counter.update(self.get_league_rankings(stat))
+
+        return dict(counter)
+
+    def get_overall_rankings(self):
+        overall_points = self.get_overall_points()
+
+        sorted_ids = sorted(overall_points, key=overall_points.__getitem__, reverse=True)
+        sorted_points = sorted(overall_points.values(), reverse=True)
+        rankings = list(ranking.Ranking(sorted_points, start=1))
 
         flat_rankings = [rank for (rank, _) in rankings]
 
