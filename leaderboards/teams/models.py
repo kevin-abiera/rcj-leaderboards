@@ -34,11 +34,21 @@ class FleaTeam(UUIDModel):
         return self.name
 
     @property
-    def stat_overall_pts(self):
+    def stat_overall_pts_flea_league(self):
         points = self.league.get_overall_points()
         return points[self.id]
 
     @property
-    def stat_overall_rank(self):
+    def stat_overall_rank_flea_league(self):
         rankings = self.league.get_overall_rankings()
+        return rankings[self.id]
+
+    @property
+    def stat_overall_pts_reddit_division(self):
+        points = self.league.division.get_overall_points()
+        return points[self.id]
+
+    @property
+    def stat_overall_rank_reddit_division(self):
+        rankings = self.league.division.get_overall_rankings()
         return rankings[self.id]
