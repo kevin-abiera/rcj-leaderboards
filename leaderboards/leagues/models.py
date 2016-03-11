@@ -3,9 +3,9 @@ from django.db import models
 from collections import Counter
 from lxml import html
 import requests
-import ranking
 
 from ..core.models import UUIDModel
+from ..core.utils import calculate_rankings
 from ..teams.models import FleaOwner
 
 
@@ -94,18 +94,9 @@ class FleaLeague(UUIDModel):
 
     def get_league_rankings(self, stat):
         assert stat in STAT_VARS, 'Invalid stat, check STAT_VARS'
-        if stat == 'stat_to':
-            sorted_ids = self.teams.values_list('id', flat=True).order_by('-' + stat)
-            sorted_stats = self.teams.values_list(stat, flat=True).order_by('-' + stat)
-            rankings = list(ranking.Ranking(sorted_stats, start=1))
-        else:
-            sorted_ids = self.teams.values_list('id', flat=True).order_by(stat)
-            sorted_stats = self.teams.values_list(stat, flat=True).order_by(stat)
-            rankings = list(ranking.Ranking(sorted_stats, start=1, reverse=True))
-
-        flat_rankings = [rank for (rank, _) in rankings]
-
-        return dict(zip(sorted_ids, flat_rankings))
+        data = dict(self.teams.values_list('id', stat))
+        reverse = stat == 'stat_to'
+        return calculate_rankings(data, reverse=reverse)
 
     def get_overall_points(self):
         counter = Counter()
@@ -117,10 +108,4 @@ class FleaLeague(UUIDModel):
     def get_overall_rankings(self):
         overall_points = self.get_overall_points()
 
-        sorted_ids = sorted(overall_points, key=overall_points.__getitem__, reverse=True)
-        sorted_points = sorted(overall_points.values(), reverse=True)
-        rankings = list(ranking.Ranking(sorted_points, start=1))
-
-        flat_rankings = [rank for (rank, _) in rankings]
-
-        return dict(zip(sorted_ids, flat_rankings))
+        return calculate_rankings(overall_points, reverse=True)
