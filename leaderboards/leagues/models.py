@@ -1,12 +1,10 @@
 from django.db import models
 
-from collections import Counter
 from lxml import html
 import requests
 
 from ..core.models import UUIDModel
-from ..core.utils import calculate_rankings
-from ..teams.models import FleaOwner, FleaTeam
+from ..teams.models import FleaOwner
 
 
 STAT_VARS = [  # Should be ordered accordingly
@@ -26,24 +24,6 @@ class RedditLeagueDivision(UUIDModel):
     url = models.URLField(blank=True, null=True)
     league = models.ForeignKey('RedditLeague', related_name='divisions')
     last_updated = models.DateTimeField(auto_now=True)
-
-    def get_division_rankings(self, stat):
-        assert stat in STAT_VARS, 'Invalid stat, check STAT_VARS'
-        data = dict(FleaTeam.objects.filter(league__division=self).values_list('id', stat))
-        reverse = stat == 'stat_to'
-        return calculate_rankings(data, reverse=reverse)
-
-    def get_overall_points(self):
-        counter = Counter()
-        for stat in STAT_VARS:
-            counter.update(self.get_division_rankings(stat))
-
-        return dict(counter)
-
-    def get_overall_rankings(self):
-        overall_points = self.get_overall_points()
-
-        return calculate_rankings(overall_points, reverse=True)
 
 
 class FleaLeague(UUIDModel):
@@ -109,21 +89,3 @@ class FleaLeague(UUIDModel):
             )
 
         self.save()
-
-    def get_league_rankings(self, stat):
-        assert stat in STAT_VARS, 'Invalid stat, check STAT_VARS'
-        data = dict(self.teams.values_list('id', stat))
-        reverse = stat == 'stat_to'
-        return calculate_rankings(data, reverse=reverse)
-
-    def get_overall_points(self):
-        counter = Counter()
-        for stat in STAT_VARS:
-            counter.update(self.get_league_rankings(stat))
-
-        return dict(counter)
-
-    def get_overall_rankings(self):
-        overall_points = self.get_overall_points()
-
-        return calculate_rankings(overall_points, reverse=True)

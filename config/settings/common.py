@@ -42,6 +42,7 @@ THIRD_PARTY_APPS = (
     'allauth.socialaccount',  # registration
     'django_graphiql',
     'graphene.contrib.django',
+    'memoize',
 )
 
 # Apps specific for this project go here.

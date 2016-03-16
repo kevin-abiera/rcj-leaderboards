@@ -1,6 +1,7 @@
 from django.db import models
 
 from ..core.models import UUIDModel
+from ..core.utils import get_team_from_division_list, get_team_from_league_list
 
 
 class FleaOwner(UUIDModel):
@@ -30,25 +31,30 @@ class FleaTeam(UUIDModel):
     stat_pts = models.PositiveIntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
 
+    team_by_division = None
+    team_by_league = None
+
     def __str__(self):
         return self.name
 
-    @property
-    def stat_overall_pts_flea_league(self):
-        points = self.league.get_overall_points()
-        return points[self.id]
+    def get_division_stat(self, stat):
+        self.team_by_division = self.team_by_division or get_team_from_division_list(self.league.division.id, self.id)
+        return getattr(self.team_by_division, stat)
 
-    @property
-    def stat_overall_rank_flea_league(self):
-        rankings = self.league.get_overall_rankings()
-        return rankings[self.id]
+    def get_league_stat(self, stat):
+        self.team_by_league = self.team_by_league or get_team_from_league_list(self.league.id, self.id)
+        return getattr(self.team_by_league, stat)
 
-    @property
-    def stat_overall_pts_reddit_division(self):
-        points = self.league.division.get_overall_points()
-        return points[self.id]
-
-    @property
-    def stat_overall_rank_reddit_division(self):
-        rankings = self.league.division.get_overall_rankings()
-        return rankings[self.id]
+    def __getattr__(self, item):
+        if type(item) is str:
+            valid = ['overall_pts', 'overall_rank', 'rank_fgpct100', 'rank_ftpct100', 'rank_3pt', 'rank_reb',
+                     'rank_stl', 'rank_blk', 'rank_ast', 'rank_to', 'rank_pts']
+            if item.startswith('stat_division_'):
+                stat = item.replace('stat_division_', '')
+                assert stat in valid, 'Invalid stat'
+                return self.get_division_stat(stat)
+            elif item.startswith('stat_flea_league_'):
+                stat = item.replace('stat_flea_league_', '')
+                assert stat in valid, 'Invalid stat'
+                return self.get_league_stat(stat)
+        return super(FleaTeam, self).__getattr__(item)
